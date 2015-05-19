@@ -43,6 +43,30 @@ public class Vormerkkarte
         }
     }
     
+    public void entferneVormerker1(Kunde vormerker)
+    {
+        _vormerker1 = _vormerker2;
+        _vormerker2 = _vormerker3;
+        _vormerker3 = _nullKunde;
+    }
+    
+    public void entferneVormerker(Kunde vormerker)
+    {
+        if (vormerker.equals(_vormerker3))
+        {
+            _vormerker3 = _nullKunde;
+        }
+        else if (vormerker.equals(_vormerker2))
+        {
+            _vormerker2 = _vormerker3;
+            _vormerker3 = _nullKunde;
+        }
+        else
+        {
+            entferneVormerker1(vormerker);
+        }
+    }
+    
     public Medium getMedium()
     {
         return _medium;

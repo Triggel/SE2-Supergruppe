@@ -231,5 +231,7 @@ public interface VerleihService extends ObservableService
     
     void merkeMedienVor(List<Medium> medien, Kunde kunde);
     
+    void storniereVormerkung(List<Medium> medien, Kunde kunde);
+    
     Vormerkkarte getVormerkkarteFuer(Medium medium);
 }

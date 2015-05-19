@@ -220,6 +220,12 @@ public class VerleihServiceImpl extends AbstractObservableService implements
                     ausleihDatum);
 
             _verleihkarten.put(medium, verleihkarte);
+            
+            if (kunde.equals(_vormerkkarten.get(medium).getVormerker1()))
+            {
+                _vormerkkarten.get(medium).entferneVormerker(kunde);
+            }
+            
             _protokollierer.protokolliere(
                     VerleihProtokollierer.EREIGNIS_AUSLEIHE, verleihkarte);
         }
@@ -315,10 +321,18 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         }
         informiereUeberAenderung();
     }
+    
+    @Override
+    public void storniereVormerkung(List<Medium> medien, Kunde kunde)
+    {
+        informiereUeberAenderung();
+    }
 
     @Override
     public Vormerkkarte getVormerkkarteFuer(Medium medium)
     {
         return _vormerkkarten.get(medium);
     }
+    
+    
 }
