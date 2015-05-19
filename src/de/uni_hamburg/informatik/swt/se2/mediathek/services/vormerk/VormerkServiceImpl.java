@@ -253,6 +253,7 @@ public class VormerkServiceImpl extends AbstractObservableService implements
         	if(vormerkkarte != null)
         	{
         		vormerkkarte.rueckeAuf();
+                informiereUeberAenderung();
         	}
         }
 	}
@@ -268,7 +269,11 @@ public class VormerkServiceImpl extends AbstractObservableService implements
 
 	@Override
 	public boolean istVerliehenAn(Kunde kunde, Medium medium) {
-		return kunde.equals(_verleihService.getVerleihkarteFuer(medium).getEntleiher());
+		if(_verleihService.getVerleihkarteFuer(medium) != null)
+		{
+			return kunde.equals(_verleihService.getVerleihkarteFuer(medium).getEntleiher());
+		}
+		return false;
 	}
 
 	@Override
@@ -277,6 +282,9 @@ public class VormerkServiceImpl extends AbstractObservableService implements
 		{
 			if(!kunde.equals(getVormerker1Fuer(medium)))
 			{
+				if(getVormerker1Fuer(medium) == null) {
+					return true;
+				}
 				return false;
 			}
 		}

@@ -168,7 +168,6 @@ public class RueckgabeWerkzeug
         try
         {
             _verleihService.nimmZurueck(medien, Datum.heute());
-            _vormerkService.rueckeAuf(medien);
         }
         catch (ProtokollierException exception)
         {
