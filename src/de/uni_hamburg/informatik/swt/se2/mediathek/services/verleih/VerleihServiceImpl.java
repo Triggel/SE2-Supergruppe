@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import de.uni_hamburg.informatik.swt.se2.mediathek.fachwerte.Datum;
+import de.uni_hamburg.informatik.swt.se2.mediathek.fachwerte.Kundennummer;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Kunde;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Verleihkarte;
+import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Vormerkkarte;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.medien.Medium;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.AbstractObservableService;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.kundenstamm.KundenstammService;
@@ -29,6 +31,13 @@ public class VerleihServiceImpl extends AbstractObservableService implements
      * die Angabe des Mediums möglich. Beispiel: _verleihkarten.get(medium)
      */
     private Map<Medium, Verleihkarte> _verleihkarten;
+
+    /**
+     * Diese Map speichert für jedes eingefügte Medium die dazugehörige
+     * Vormerkkarte. Ein Zugriff auf die Vormerkkarte ist dadurch leicht über
+     * die Angabe des Mediums möglich. Beispiel: _vortmerkkarten.get(medium)
+     */
+    private Map<Medium, Vormerkkarte> _vormerkkarten;
 
     /**
      * Der Medienbestand.
@@ -64,6 +73,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         assert medienbestand != null : "Vorbedingung verletzt: medienbestand  != null";
         assert initialBestand != null : "Vorbedingung verletzt: initialBestand  != null";
         _verleihkarten = erzeugeVerleihkartenBestand(initialBestand);
+        _vormerkkarten = erzeugeVormerkkartenBestand(medienbestand.getMedien());
         _kundenstamm = kundenstamm;
         _medienbestand = medienbestand;
         _protokollierer = new VerleihProtokollierer();
@@ -79,6 +89,21 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         for (Verleihkarte verleihkarte : initialBestand)
         {
             result.put(verleihkarte.getMedium(), verleihkarte);
+        }
+        return result;
+    }
+
+    /**
+     * Erzeugt eine neue HashMap zur Speicherung eines Mediums in Verbindung mit deren Vormerkkarte.
+     */
+    private HashMap<Medium, Vormerkkarte> erzeugeVormerkkartenBestand(
+            List<Medium> medienbestand)
+    {
+        Kunde nullKunde = new Kunde(new Kundennummer(777777), "", "");
+        HashMap<Medium, Vormerkkarte> result = new HashMap<Medium, Vormerkkarte>();
+        for (Medium medium : medienbestand)
+        {
+                result.put(medium, new Vormerkkarte(nullKunde, medium));
         }
         return result;
     }
@@ -240,7 +265,8 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         List<Medium> result = new ArrayList<Medium>();
         for (Verleihkarte verleihkarte : _verleihkarten.values())
         {
-            if (verleihkarte.getEntleiher().equals(kunde))
+            if (verleihkarte.getEntleiher()
+                .equals(kunde))
             {
                 result.add(verleihkarte.getMedium());
             }
@@ -270,7 +296,8 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         List<Verleihkarte> result = new ArrayList<Verleihkarte>();
         for (Verleihkarte verleihkarte : _verleihkarten.values())
         {
-            if (verleihkarte.getEntleiher().equals(kunde))
+            if (verleihkarte.getEntleiher()
+                .equals(kunde))
             {
                 result.add(verleihkarte);
             }
@@ -278,4 +305,20 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         return result;
     }
 
+    @Override
+    public void merkeMedienVor(List<Medium> medien, Kunde kunde)
+    {
+        for (Medium medium : medien)
+        {
+            _vormerkkarten.get(medium)
+                .setVormerker(kunde, medium);
+        }
+        informiereUeberAenderung();
+    }
+
+    @Override
+    public Vormerkkarte getVormerkkarteFuer(Medium medium)
+    {
+        return _vormerkkarten.get(medium);
+    }
 }

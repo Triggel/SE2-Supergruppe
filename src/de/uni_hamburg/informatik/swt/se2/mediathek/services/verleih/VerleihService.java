@@ -5,6 +5,7 @@ import java.util.List;
 import de.uni_hamburg.informatik.swt.se2.mediathek.fachwerte.Datum;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Kunde;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Verleihkarte;
+import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Vormerkkarte;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.medien.Medium;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.ObservableService;
 
@@ -227,5 +228,8 @@ public interface VerleihService extends ObservableService
      * @ensure (result != null)
      */
     Verleihkarte getVerleihkarteFuer(Medium medium);
-
+    
+    void merkeMedienVor(List<Medium> medien, Kunde kunde);
+    
+    Vormerkkarte getVormerkkarteFuer(Medium medium);
 }

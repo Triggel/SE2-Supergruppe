@@ -83,5 +83,4 @@ public interface Medium
      * @ensure getTitel() == titel
      */
     public void setTitel(String titel);
-
 }

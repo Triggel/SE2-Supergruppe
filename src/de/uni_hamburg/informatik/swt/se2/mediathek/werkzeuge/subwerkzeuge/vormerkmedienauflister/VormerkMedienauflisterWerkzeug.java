@@ -84,10 +84,18 @@ public class VormerkMedienauflisterWerkzeug extends ObservableSubWerkzeug
             // Entleiher und möglichen Vormerkern ausgestattet werden.
             // Ist dies korrekt implementiert, erscheinen in der Vormerkansicht
             // die Namen des Entleihers und der möglichen 3 Vormerker.
-            Kunde entleiher = null;
-            Kunde vormerker1 = null;
-            Kunde vormerker2 = null;
-            Kunde vormerker3 = null;
+            Kunde entleiher;
+            if (_verleihService.istVerliehen(medium))
+            {
+                entleiher = _verleihService.getEntleiherFuer(medium);
+            }
+            else
+            {
+                entleiher = _verleihService.getVormerkkarteFuer(medium).getNullKunde();
+            }
+            Kunde vormerker1 = _verleihService.getVormerkkarteFuer(medium).getVormerker1();
+            Kunde vormerker2 = _verleihService.getVormerkkarteFuer(medium).getVormerker2();
+            Kunde vormerker3 = _verleihService.getVormerkkarteFuer(medium).getVormerker3();
 
             medienFormatierer.add(new VormerkMedienFormatierer(medium,
                     entleiher, vormerker1, vormerker2, vormerker3));

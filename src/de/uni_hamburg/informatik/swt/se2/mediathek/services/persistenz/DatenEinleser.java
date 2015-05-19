@@ -46,6 +46,8 @@ public class DatenEinleser
      */
     private List<Verleihkarte> _verleihkarten;
 
+
+
     /**
      * Initialisiert einen neuen DatenEinleser, der aus den angebenen Dateien
      * einliest.
@@ -93,6 +95,7 @@ public class DatenEinleser
                 _verleihkarten.add(verleihkarte);
             }
         }
+
     }
 
     /**

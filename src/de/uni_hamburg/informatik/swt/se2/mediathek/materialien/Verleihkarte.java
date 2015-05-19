@@ -124,7 +124,8 @@ public class Verleihkarte
      */
     public int getAusleihdauer()
     {
-        return Datum.heute().tageSeit(getAusleihdatum()) + 1;
+        return Datum.heute()
+            .tageSeit(getAusleihdatum()) + 1;
     }
 
     @Override
@@ -148,11 +149,12 @@ public class Verleihkarte
         {
             Verleihkarte other = (Verleihkarte) obj;
 
-            if (other.getAusleihdatum().equals(_ausleihdatum)
-                    && other.getEntleiher().equals(_entleiher)
-                    && other.getMedium().equals(_medium))
+            if (other.getAusleihdatum()
+                .equals(_ausleihdatum) && other.getEntleiher()
+                .equals(_entleiher) && other.getMedium()
+                .equals(_medium))
 
-                result = true;
+            result = true;
         }
         return result;
     }
