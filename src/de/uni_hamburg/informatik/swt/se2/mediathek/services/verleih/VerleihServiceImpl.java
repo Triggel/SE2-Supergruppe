@@ -223,7 +223,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
             
             if (kunde.equals(_vormerkkarten.get(medium).getVormerker1()))
             {
-                _vormerkkarten.get(medium).entferneVormerker(kunde);
+                _vormerkkarten.get(medium).entferneVormerker1(kunde);
             }
             
             _protokollierer.protokolliere(

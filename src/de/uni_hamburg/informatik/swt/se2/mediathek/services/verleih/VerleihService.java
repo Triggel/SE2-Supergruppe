@@ -229,6 +229,13 @@ public interface VerleihService extends ObservableService
      */
     Verleihkarte getVerleihkarteFuer(Medium medium);
     
+    /**
+     * Merkt Medien für einen Kunden vor.
+     * @param medien Die Liste der vorzumerkenden Medien.
+     * @param kunde Der Kunde, der die Medien vormerken will.
+     * 
+     * @require istVormerkbar(medium)
+     */
     void merkeMedienVor(List<Medium> medien, Kunde kunde);
     
     void storniereVormerkung(List<Medium> medien, Kunde kunde);

@@ -224,7 +224,10 @@ public class AusleihWerkzeug
                 istErsterVormerker = istErsterVormerker
                         && (kunde.equals(_verleihService.getVormerkkarteFuer(
                                 medium)
-                            .getVormerker1()) || kunde.equals((_verleihService.getVormerkkarteFuer(medium).getNullKunde())));
+                            .getVormerker1()) || _verleihService.getVormerkkarteFuer(
+                                medium)
+                            .getVormerker1()
+                            .equals((_verleihService.getVormerkkarteFuer(medium).getNullKunde())));
             }
 
             boolean ausleiheMoeglich = (kunde != null) && !medien.isEmpty()
