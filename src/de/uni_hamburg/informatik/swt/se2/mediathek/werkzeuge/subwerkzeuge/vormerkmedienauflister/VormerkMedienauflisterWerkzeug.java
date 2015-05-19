@@ -12,6 +12,7 @@ import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.medien.Medium;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.ServiceObserver;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.medienbestand.MedienbestandService;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.verleih.VerleihService;
+import de.uni_hamburg.informatik.swt.se2.mediathek.services.vormerk.VormerkService;
 import de.uni_hamburg.informatik.swt.se2.mediathek.werkzeuge.ObservableSubWerkzeug;
 
 /**
@@ -29,6 +30,7 @@ public class VormerkMedienauflisterWerkzeug extends ObservableSubWerkzeug
     private VormerkMedienauflisterUI _ui;
     private MedienbestandService _medienbestand;
     private final VerleihService _verleihService;
+    private final VormerkService _vormerkService;
 
     /**
      * Initialisiert ein neues VormerkMedienauflisterWerkzeug. Es wird die
@@ -36,18 +38,22 @@ public class VormerkMedienauflisterWerkzeug extends ObservableSubWerkzeug
      * 
      * @param medienbestand Der Medienbestand.
      * @param verleihService Der Verleih-Service.
+     * @param verleihService Der Vormerk-Service.
      * 
      * @require medienbestand != null
      * @require verleihService != null
+     * @require vormerkService != null
      */
     public VormerkMedienauflisterWerkzeug(MedienbestandService medienbestand,
-            VerleihService verleihService)
+            VerleihService verleihService, VormerkService vormerkService)
     {
         assert medienbestand != null : "Vorbedingung verletzt: medienbestand != null";
         assert verleihService != null : "Vorbedingung verletzt: verleihService != null";
+        assert vormerkService != null : "Vorbedingung verletzt: vormerkService != null";
 
         _medienbestand = medienbestand;
         _verleihService = verleihService;
+        _vormerkService = vormerkService;
 
         // UI wird erzeugt.
         _ui = new VormerkMedienauflisterUI();
@@ -83,11 +89,19 @@ public class VormerkMedienauflisterWerkzeug extends ObservableSubWerkzeug
             // VormerkMedienFormatierer müssen noch mit einem möglichen
             // Entleiher und möglichen Vormerkern ausgestattet werden.
             // Ist dies korrekt implementiert, erscheinen in der Vormerkansicht
-            // die Namen des Entleihers und der möglichen 3 Vormerker.
+            // die Namen des Entleihers und der möglichen 3 Vormerker.            
             Kunde entleiher = null;
             Kunde vormerker1 = null;
             Kunde vormerker2 = null;
             Kunde vormerker3 = null;
+            if (_verleihService.istVerliehen(medium))
+            {
+            	entleiher = _verleihService.getEntleiherFuer(medium);
+            }
+            vormerker1 = _vormerkService.getVormerkkarteFuer(medium).getVormerker1();
+            vormerker2 = _vormerkService.getVormerkkarteFuer(medium).getVormerker2();
+            vormerker3 = _vormerkService.getVormerkkarteFuer(medium).getVormerker3();
+            
 
             medienFormatierer.add(new VormerkMedienFormatierer(medium,
                     entleiher, vormerker1, vormerker2, vormerker3));
@@ -129,6 +143,7 @@ public class VormerkMedienauflisterWerkzeug extends ObservableSubWerkzeug
         };
         _medienbestand.registriereBeobachter(beobachter);
         _verleihService.registriereBeobachter(beobachter);
+        _vormerkService.registriereBeobachter(beobachter);
     }
 
     /**

@@ -17,6 +17,7 @@ import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.medien.Medium;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.ServiceObserver;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.verleih.ProtokollierException;
 import de.uni_hamburg.informatik.swt.se2.mediathek.services.verleih.VerleihService;
+import de.uni_hamburg.informatik.swt.se2.mediathek.services.vormerk.VormerkService;
 
 /**
  * Ein RueckgabeWerkzeug stellt die Funktionalität der Rücknahme für die
@@ -38,19 +39,29 @@ public class RueckgabeWerkzeug
     private final VerleihService _verleihService;
 
     /**
+     * Der Service zum Vormerken von Medien.
+     */
+    private final VormerkService _vormerkService;
+
+    /**
      * Initialisiert ein neues RueckgabeWerkzeug. Es wird die
      * Benutzungsoberfläche mit den Rückgabeaktionen erzeugt, Beobachter an den
      * Services registriert und die anzuzeigenden Materialien gesetzt.
      * 
      * @param verleihService Der zu benutzenden VerleihService.
+     * @param vormerkService Der zu benutzenden VormerkService.
      * 
      * @require verleihService != null
+     * @require vormerkService != null
      */
-    public RueckgabeWerkzeug(VerleihService verleihService)
+    public RueckgabeWerkzeug(VerleihService verleihService, VormerkService vormerkService)
     {
         assert verleihService != null : "Vorbedingung verletzt: verleihService != null";
-        _verleihService = verleihService;
+        assert vormerkService != null : "Vorbedingung verletzt: vormerkService != null";
 
+        _verleihService = verleihService;
+        _vormerkService = vormerkService;
+        
         // UI wird erzeugt.
         _rueckgabeUI = new RueckgabeUI();
 
@@ -157,6 +168,7 @@ public class RueckgabeWerkzeug
         try
         {
             _verleihService.nimmZurueck(medien, Datum.heute());
+            _vormerkService.rueckeAuf(medien);
         }
         catch (ProtokollierException exception)
         {

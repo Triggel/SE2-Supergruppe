@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Kunde;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Verleihkarte;
+import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Vormerkkarte;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.medien.Medium;
 
 /**
@@ -45,6 +46,12 @@ public class DatenEinleser
      * wurde.
      */
     private List<Verleihkarte> _verleihkarten;
+    
+    /**
+     * Die eingelesenen Vormerkkarten, ist null wenn noch nicht eingelesen
+     * wurde.
+     */
+    private List<Vormerkkarte> _vormerkkarten;
 
     /**
      * Initialisiert einen neuen DatenEinleser, der aus den angebenen Dateien
@@ -92,6 +99,12 @@ public class DatenEinleser
             {
                 _verleihkarten.add(verleihkarte);
             }
+        }
+        _vormerkkarten = new ArrayList<Vormerkkarte>();
+        for (Medium medium : _medien)
+        {
+        	Vormerkkarte vormerkkarte = new Vormerkkarte(null, medium);
+        	_vormerkkarten.add(vormerkkarte);
         }
     }
 
@@ -143,5 +156,10 @@ public class DatenEinleser
         assert wurdeEingelesen() : "Vorbedingung verletzt: wurdeEingelesen()";
         return _verleihkarten;
     }
+
+	public List<Vormerkkarte> getVormerkkarten() {
+        assert wurdeEingelesen() : "Vorbedingung verletzt: wurdeEingelesen()";
+        return _vormerkkarten;
+	}
 
 }

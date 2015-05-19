@@ -41,7 +41,7 @@ public class VerleihServiceImplTest
         _kunde = new Kunde(new Kundennummer(123456), "ich", "du");
 
         _vormerkkunde = new Kunde(new Kundennummer(666999), "paul", "panter");
-
+        
         kundenstamm.fuegeKundenEin(_kunde);
         kundenstamm.fuegeKundenEin(_vormerkkunde);
         MedienbestandService medienbestand = new MedienbestandServiceImpl(

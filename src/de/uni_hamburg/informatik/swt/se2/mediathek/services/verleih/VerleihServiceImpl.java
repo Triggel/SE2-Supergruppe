@@ -51,10 +51,12 @@ public class VerleihServiceImpl extends AbstractObservableService implements
      * @param kundenstamm Der KundenstammService.
      * @param medienbestand Der MedienbestandService.
      * @param initialBestand Der initiale Bestand.
+     * @param vormerkService Der Vormerk Service.
      * 
      * @require kundenstamm != null
      * @require medienbestand != null
      * @require initialBestand != null
+     * @require vormerkService != null
      */
     public VerleihServiceImpl(KundenstammService kundenstamm,
             MedienbestandService medienbestand,
@@ -119,7 +121,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
             _protokollierer.protokolliere(
                     VerleihProtokollierer.EREIGNIS_RUECKGABE, verleihkarte);
         }
-
+        
         informiereUeberAenderung();
     }
 
@@ -259,7 +261,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
     @Override
     public Verleihkarte getVerleihkarteFuer(Medium medium)
     {
-        assert istVerliehen(medium) : "Vorbedingung verletzt: istVerliehen(medium)";
+        //assert istVerliehen(medium) : "Vorbedingung verletzt: istVerliehen(medium)";
         return _verleihkarten.get(medium);
     }
 
