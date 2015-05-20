@@ -102,4 +102,39 @@ public class Vormerkkarte
     {
         return _vormerker3;
     }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_medium == null) ? 0 : _medium.hashCode());
+        result = prime * result
+                + ((_vormerker1 == null) ? 0 : _vormerker1.hashCode());
+        result = prime * result
+                + ((_vormerker2 == null) ? 0 : _vormerker2.hashCode());
+        result = prime * result
+                + ((_vormerker3 == null) ? 0 : _vormerker3.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        boolean result = false;
+        if (obj instanceof Vormerkkarte)
+        {
+            Vormerkkarte other = (Vormerkkarte) obj;
+
+            if (other.getMedium()
+                .equals(_medium) && other.getVormerker1()
+                .equals(_vormerker1) && other.getVormerker2()
+                .equals(_vormerker2) && other.getVormerker3()
+                .equals(_vormerker3))
+            {
+                result = true;
+            }
+        }
+        return result;
+    }
 }
