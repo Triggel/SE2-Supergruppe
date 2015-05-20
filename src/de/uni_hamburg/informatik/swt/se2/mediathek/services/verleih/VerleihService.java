@@ -228,17 +228,155 @@ public interface VerleihService extends ObservableService
      * @ensure (result != null)
      */
     Verleihkarte getVerleihkarteFuer(Medium medium);
-    
+
     /**
      * Merkt Medien für einen Kunden vor.
+     * 
      * @param medien Die Liste der vorzumerkenden Medien.
      * @param kunde Der Kunde, der die Medien vormerken will.
      * 
-     * @require istVormerkbar(medium)
+     * @require medien != null
+     * @require kunde != null
      */
     void merkeMedienVor(List<Medium> medien, Kunde kunde);
-    
+
+    /**
+     * Storniert eine getätigte Vormerkung von Medien für einen Kunden.
+     * 
+     * @param medien Eine Liste der Medien, deren Vormerkung storniert werden soll.
+     * @param kunde Der Kunde, desse Vormerkung storniert werden soll.
+     * 
+     * @require medien != null
+     * @require kunde != null
+     */
     void storniereVormerkung(List<Medium> medien, Kunde kunde);
-    
+
+    /**
+     * Entfernt eine Vormerkung eines Kunden für ein Medium.
+     * 
+     * @param medium Das Medium, für das die Vormerkung entfernt werden soll.
+     * @param kunde Der Kunde, dessen Vormerkung entfernt werden soll.
+     * 
+     * @require medium != null
+     * @require kunde != null
+     */
+    void entferneVormerker(Medium medium, Kunde kunde);
+
+    /**
+     * Gibt die in der HashMap gespeicherte Vormerkkarte für ein Medium zurück.
+     * 
+     * @param medium Das Medium, für das die Vormerkkarte zurückgegeben wird.
+     * 
+     * @return Die Vormerkkarte für das Medium.
+     * 
+     * @require medium != null
+     * 
+     * @ensure result != null
+     */
     Vormerkkarte getVormerkkarteFuer(Medium medium);
+
+    /**
+     * Prüft, ob das Vormerken eines Mediums möglich ist.
+     * 
+     * @param medium Ein Medium, für das überprüft wird.
+     * 
+     * @return True, wenn Vormerken möglich, false sonst.
+     * 
+     * @require medium != null
+     */
+    boolean vormerkenMoeglich(Medium medium);
+
+    /**
+     * Prüft, ob alle Medien einer Liste von Medien vorgemerkt werden können.
+     * 
+     * @param medien Eine Liste von Medien, für die überprüft wird.
+     * 
+     * @return True, wenn Vormerken aller Medien möglich, false sonst.
+     * 
+     * @require medien != null
+     */
+    boolean vormerkenMoeglichAlle(List<Medium> medien);
+
+    /**
+     * Prüft, ob ein Medium für einen bestimmten Kunden vorgemerkt werden kann.
+     * 
+     * @param medium Ein Medium, für das überprüft wird.
+     * @param kunde Der Kunde, für den überprüft wird.
+     * 
+     * @return True, wenn das Vormerken des Mediums für den Kunden möglich ist, false sonst.
+     * 
+     * @require medium != null
+     * @require kunde != null
+     */
+    boolean vormerkenMoeglichFuer(Medium medium, Kunde kunde);
+
+    /**
+     * Prüft, ob eine Liste von Medien für einen bestimmten Kunden vorgemerkt werden kann.
+     * 
+     * @param medien Eine Liste von Medien, für die überprüft wird.
+     * @param kunde Der Kunde, für den überprüft wird.
+     * 
+     * @return True, wenn das Vormerken der Medien für den Kunden möglich ist, false sonst.
+     * 
+     * @require medien != null
+     * @require kunde != null
+     */
+    boolean vormerkenMoeglichAlleFuer(List<Medium> medien, Kunde kunde);
+
+    /**
+     * Prüft, ob ein Kunde der erste Vormerker eines Mediums ist.
+     * 
+     * @param medium Ein Medium, für das überprüft wird.
+     * @param kunde Der Kunde, für den überprüft wird.
+     * 
+     * @return True, wenn der Kunde erster Vormerker des Mediums ist, false sonst.
+     * 
+     * @require medium != null
+     * @require kunde != null
+     */
+    boolean kundeIstErsterVormerker(Medium medium, Kunde kunde);
+
+    /**
+     * Prüft, ob ein Kunde der erste Vormerker der Medien einer Liste von Medien ist.
+     * 
+     * @param medien Eine Liste von Medien, für die überprüft wird.
+     * @param kunde Der Kunde, für den überprüft wird.
+     * 
+     * @return True, wenn der Kunde erster Vormerker aller Medien der Liste ist, false sonst.
+     * 
+     * @require medien != null
+     * @require kunde != null
+     */
+    boolean kundeIstErsterVormerkerAlle(List<Medium> medien, Kunde kunde);
+
+    /**
+     * Prüft, ob für ein Medium Vormerkungen existieren.
+     * 
+     * @param medium Ein Medium, für das überprüft wird.
+     * 
+     * @return True, wenn mind. eine Vormerkung für das Medium besteht, false sonst.
+     * 
+     * @require medium != null
+     */
+    boolean keineVormerkung(Medium medium);
+
+    /**
+     * Prüft, ob für Medien einer Liste von Medien Vormerkungen existieren.
+     * 
+     * @param medien Eine Liste von Medien, für die überprüft wird.
+     * 
+     * @return True, wenn mind. eine Vormerkung für alle Medien der Liste besteht, false sonst.
+     * 
+     * @require medien != null
+     */
+    boolean keineVormerkungAlle(List<Medium> medien);
+
+    /**
+     * Liefert einen Kunden zurück, der verwendet wird, wenn ein Feld in der Vormerk-Tabelle leer bleiben soll.
+     * 
+     * @return Einen "NullKunden", der für "niemand", "N/A" o.ä steht. Er trägt die Kundennummer 999999.
+     * 
+     * @ensure result != null
+     */
+    Kunde getNullKunde();
 }

@@ -218,23 +218,7 @@ public class AusleihWerkzeug
 
         if (kunde != null)
         {
-            boolean istErsterVormerker = true;
-            for (Medium medium : medien)
-            {
-                istErsterVormerker = istErsterVormerker
-                        && (kunde.equals(_verleihService.getVormerkkarteFuer(
-                                medium)
-                            .getVormerker1()) || _verleihService.getVormerkkarteFuer(
-                                medium)
-                            .getVormerker1()
-                            .equals((_verleihService.getVormerkkarteFuer(medium).getNullKunde())));
-            }
-
-            boolean ausleiheMoeglich = (kunde != null) && !medien.isEmpty()
-                    && _verleihService.sindAlleNichtVerliehen(medien)
-                    && istErsterVormerker;
-
-            return ausleiheMoeglich;
+            return _verleihService.istVerleihenMoeglich(kunde, medien);
         }
         else
         {

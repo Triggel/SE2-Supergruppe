@@ -214,26 +214,7 @@ public class VormerkWerkzeug
         // der Anforderungen a), b), c) und e) aktiviert.
         if (kunde != null)
         {
-            boolean mediumVormerkbar = true;
-            for (Medium medium : medien)
-            {
-                if (!_verleihService.istVerliehenAn(kunde, medium))
-                {
-                    mediumVormerkbar = mediumVormerkbar
-                            && (_verleihService.getVormerkkarteFuer(medium)
-                                .getVormerker3().equals(_verleihService.getVormerkkarteFuer(
-                                    medium)
-                                .getNullKunde()));
-                }
-                else
-                {
-                    mediumVormerkbar = false;
-                }
-            }
-            boolean vormerkenMoeglich = (kunde != null) && !medien.isEmpty()
-                    && mediumVormerkbar;
-
-            return vormerkenMoeglich;
+            return _verleihService.vormerkenMoeglichAlleFuer(medien, kunde);
         }
         else
         {

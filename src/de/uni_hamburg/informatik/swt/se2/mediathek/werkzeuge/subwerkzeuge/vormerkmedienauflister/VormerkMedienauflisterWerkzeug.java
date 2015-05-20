@@ -91,7 +91,7 @@ public class VormerkMedienauflisterWerkzeug extends ObservableSubWerkzeug
             }
             else
             {
-                entleiher = _verleihService.getVormerkkarteFuer(medium).getNullKunde();
+                entleiher = _verleihService.getNullKunde();
             }
             Kunde vormerker1 = _verleihService.getVormerkkarteFuer(medium).getVormerker1();
             Kunde vormerker2 = _verleihService.getVormerkkarteFuer(medium).getVormerker2();

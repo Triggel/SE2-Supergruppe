@@ -55,6 +55,12 @@ public class VerleihServiceImpl extends AbstractObservableService implements
     private VerleihProtokollierer _protokollierer;
 
     /**
+     * Ein "NullKunde", der für "niemand", "N/A" o.ä. steht und dazu dient,
+     * ein leeres Feld in der Tabelle zu schaffen.
+     */
+    private final Kunde _nullKunde;
+
+    /**
      * Konstruktor. Erzeugt einen neuen VerleihServiceImpl.
      * 
      * @param kundenstamm Der KundenstammService.
@@ -72,6 +78,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         assert kundenstamm != null : "Vorbedingung verletzt: kundenstamm  != null";
         assert medienbestand != null : "Vorbedingung verletzt: medienbestand  != null";
         assert initialBestand != null : "Vorbedingung verletzt: initialBestand  != null";
+        _nullKunde = new Kunde(new Kundennummer(999999), "", "");
         _verleihkarten = erzeugeVerleihkartenBestand(initialBestand);
         _vormerkkarten = erzeugeVormerkkartenBestand(medienbestand.getMedien());
         _kundenstamm = kundenstamm;
@@ -99,11 +106,11 @@ public class VerleihServiceImpl extends AbstractObservableService implements
     private HashMap<Medium, Vormerkkarte> erzeugeVormerkkartenBestand(
             List<Medium> medienbestand)
     {
-        Kunde nullKunde = new Kunde(new Kundennummer(777777), "", "");
         HashMap<Medium, Vormerkkarte> result = new HashMap<Medium, Vormerkkarte>();
         for (Medium medium : medienbestand)
         {
-                result.put(medium, new Vormerkkarte(nullKunde, medium));
+            result.put(medium, new Vormerkkarte(medium, _nullKunde, _nullKunde,
+                    _nullKunde));
         }
         return result;
     }
@@ -127,7 +134,8 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         assert kundeImBestand(kunde) : "Vorbedingung verletzt: kundeImBestand(kunde)";
         assert medienImBestand(medien) : "Vorbedingung verletzt: medienImBestand(medien)";
 
-        return sindAlleNichtVerliehen(medien);
+        return sindAlleNichtVerliehen(medien)
+                && (kundeIstErsterVormerkerAlle(medien, kunde) || keineVormerkungAlle(medien));
     }
 
     @Override
@@ -220,12 +228,13 @@ public class VerleihServiceImpl extends AbstractObservableService implements
                     ausleihDatum);
 
             _verleihkarten.put(medium, verleihkarte);
-            
-            if (kunde.equals(_vormerkkarten.get(medium).getVormerker1()))
+
+            if (kunde.equals(_vormerkkarten.get(medium)
+                .getVormerker1()))
             {
-                _vormerkkarten.get(medium).entferneVormerker1(kunde);
+                entferneVormerker(medium, kunde);
             }
-            
+
             _protokollierer.protokolliere(
                     VerleihProtokollierer.EREIGNIS_AUSLEIHE, verleihkarte);
         }
@@ -250,7 +259,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
     public boolean medienImBestand(List<Medium> medien)
     {
         assert medien != null : "Vorbedingung verletzt: medien != null";
-        assert !medien.isEmpty() : "Vorbedingung verletzt: !medien.isEmpty()";
+        // assert !medien.isEmpty() : "Vorbedingung verletzt: !medien.isEmpty()";
 
         boolean result = true;
         for (Medium medium : medien)
@@ -314,25 +323,218 @@ public class VerleihServiceImpl extends AbstractObservableService implements
     @Override
     public void merkeMedienVor(List<Medium> medien, Kunde kunde)
     {
+        assert medien != null : "Vorbedingung verletzt: kunde  != null";
+        assert kunde != null : "Vorbedingung verletzt: kunde  != null";
+        assert vormerkenMoeglichAlleFuer(medien, kunde) : "Vorbedingung "
+                + "verletzt: !vormerkenMoeglichAlleFuer()";
+
         for (Medium medium : medien)
         {
-            _vormerkkarten.get(medium)
-                .setVormerker(kunde, medium);
+            Vormerkkarte vormerkkarteAlt = _vormerkkarten.get(medium);
+            if (vormerkkarteAlt.getVormerker1() == _nullKunde)
+            {
+                _vormerkkarten.put(medium, new Vormerkkarte(medium, kunde,
+                        _nullKunde, _nullKunde));
+            }
+            else
+            {
+                if (vormerkkarteAlt.getVormerker2() == _nullKunde)
+                {
+                    _vormerkkarten.put(medium, new Vormerkkarte(medium,
+                            vormerkkarteAlt.getVormerker1(), kunde, _nullKunde));
+                }
+                else
+                {
+                    _vormerkkarten.put(
+                            medium,
+                            new Vormerkkarte(medium,
+                                    vormerkkarteAlt.getVormerker1(),
+                                    vormerkkarteAlt.getVormerker2(), kunde));
+                }
+
+            }
+
         }
         informiereUeberAenderung();
     }
-    
+
     @Override
     public void storniereVormerkung(List<Medium> medien, Kunde kunde)
     {
+        assert medien != null : "Vorbedingung verletzt: kunde  != null";
+        assert kunde != null : "Vorbedingung verletzt: kunde  != null";
+        //TODO für Zusatzaufgabe: Funktion in die Oberfläche einbinden.
+        for (Medium medium : medien)
+        {
+            entferneVormerker(medium, kunde);
+        }
         informiereUeberAenderung();
     }
 
     @Override
     public Vormerkkarte getVormerkkarteFuer(Medium medium)
     {
+        assert medium != null : "Vorbedingung verletzt: kunde  != null";
+
         return _vormerkkarten.get(medium);
     }
-    
-    
+
+    @Override
+    public void entferneVormerker(Medium medium, Kunde kunde)
+    {
+        assert medium != null : "Vorbedingung verletzt: kunde  != null";
+        assert kunde != null : "Vorbedingung verletzt: kunde  != null";
+
+        Vormerkkarte vormerkkarteAlt = _vormerkkarten.get(medium);
+        if (vormerkkarteAlt.getVormerker3() == kunde)
+        {
+            _vormerkkarten.put(medium,
+                    new Vormerkkarte(medium, vormerkkarteAlt.getVormerker1(),
+                            vormerkkarteAlt.getVormerker2(), _nullKunde));
+        }
+        else
+        {
+            if (vormerkkarteAlt.getVormerker2() == kunde)
+            {
+                _vormerkkarten.put(
+                        medium,
+                        new Vormerkkarte(medium,
+                                vormerkkarteAlt.getVormerker1(),
+                                vormerkkarteAlt.getVormerker3(), _nullKunde));
+            }
+            else
+            {
+                _vormerkkarten.put(
+                        medium,
+                        new Vormerkkarte(medium,
+                                vormerkkarteAlt.getVormerker2(),
+                                vormerkkarteAlt.getVormerker3(), _nullKunde));
+            }
+
+        }
+    }
+
+    @Override
+    public boolean vormerkenMoeglich(Medium medium)
+    {
+        assert medium != null : "Vorbedingung verletzt: kunde  != null";
+
+        boolean result = _vormerkkarten.get(medium)
+            .getVormerker3()
+            .equals(_nullKunde);
+        return result;
+    }
+
+    @Override
+    public boolean vormerkenMoeglichAlle(List<Medium> medien)
+    {
+        assert medien != null : "Vorbedingung verletzt: kunde  != null";
+
+        boolean result = true;
+        for (Medium medium : medien)
+        {
+            if (!vormerkenMoeglich(medium))
+            {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean vormerkenMoeglichFuer(Medium medium, Kunde kunde)
+    {
+        assert medium != null : "Vorbedingung verletzt: kunde  != null";
+        assert kunde != null : "Vorbedingung verletzt: kunde  != null";
+
+        boolean result = vormerkenMoeglich(medium)
+                && !istVerliehenAn(kunde, medium)
+                && !(_vormerkkarten.get(medium)
+                    .getVormerker1()
+                    .equals(kunde) || _vormerkkarten.get(medium)
+                    .getVormerker2()
+                    .equals(kunde) || _vormerkkarten.get(medium)
+                    .getVormerker3()
+                    .equals(kunde));
+        return result;
+    }
+
+    @Override
+    public boolean vormerkenMoeglichAlleFuer(List<Medium> medien, Kunde kunde)
+    {
+        assert medien != null : "Vorbedingung verletzt: kunde  != null";
+        assert kunde != null : "Vorbedingung verletzt: kunde  != null";
+
+        boolean result = true;
+        for (Medium medium : medien)
+        {
+            if (!vormerkenMoeglichFuer(medium, kunde))
+            {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean kundeIstErsterVormerker(Medium medium, Kunde kunde)
+    {
+        assert medium != null : "Vorbedingung verletzt: kunde  != null";
+        assert kunde != null : "Vorbedingung verletzt: kunde  != null";
+
+        boolean result = _vormerkkarten.get(medium)
+            .getVormerker1()
+            .equals(kunde);
+        return result;
+    }
+
+    @Override
+    public boolean kundeIstErsterVormerkerAlle(List<Medium> medien, Kunde kunde)
+    {
+        assert medien != null : "Vorbedingung verletzt: kunde  != null";
+        assert kunde != null : "Vorbedingung verletzt: kunde  != null";
+
+        boolean result = true;
+        for (Medium medium : medien)
+        {
+            if (!kundeIstErsterVormerker(medium, kunde))
+            {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean keineVormerkung(Medium medium)
+    {
+        assert medium != null : "Vorbedingung verletzt: kunde  != null";
+
+        boolean result = _vormerkkarten.get(medium)
+            .getVormerker1()
+            .equals(_nullKunde);
+        return result;
+    }
+
+    @Override
+    public boolean keineVormerkungAlle(List<Medium> medien)
+    {
+        assert medien != null : "Vorbedingung verletzt: kunde  != null";
+
+        boolean result = true;
+        for (Medium medium : medien)
+        {
+            if (!keineVormerkung(medium))
+            {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Kunde getNullKunde()
+    {
+        return _nullKunde;
+    }
 }

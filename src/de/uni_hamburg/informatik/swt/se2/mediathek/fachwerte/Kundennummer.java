@@ -38,7 +38,8 @@ public final class Kundennummer
      */
     public static boolean istGueltig(int kundennummer)
     {
-        return String.valueOf(kundennummer).matches("[0-9]{6}");
+        return String.valueOf(kundennummer)
+            .matches("[0-9]{6}");
     }
 
     /**
