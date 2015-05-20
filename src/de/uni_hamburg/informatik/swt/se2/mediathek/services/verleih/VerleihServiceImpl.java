@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.uni_hamburg.informatik.swt.se2.mediathek.fachwerte.Datum;
-import de.uni_hamburg.informatik.swt.se2.mediathek.fachwerte.Kundennummer;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Kunde;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Verleihkarte;
 import de.uni_hamburg.informatik.swt.se2.mediathek.materialien.Vormerkkarte;
@@ -55,12 +54,6 @@ public class VerleihServiceImpl extends AbstractObservableService implements
     private VerleihProtokollierer _protokollierer;
 
     /**
-     * Ein "NullKunde", der für "niemand", "N/A" o.ä. steht und dazu dient,
-     * ein leeres Feld in der Tabelle zu schaffen.
-     */
-    private final Kunde _nullKunde;
-
-    /**
      * Konstruktor. Erzeugt einen neuen VerleihServiceImpl.
      * 
      * @param kundenstamm Der KundenstammService.
@@ -78,7 +71,6 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         assert kundenstamm != null : "Vorbedingung verletzt: kundenstamm  != null";
         assert medienbestand != null : "Vorbedingung verletzt: medienbestand  != null";
         assert initialBestand != null : "Vorbedingung verletzt: initialBestand  != null";
-        _nullKunde = new Kunde(new Kundennummer(999999), "", "");
         _verleihkarten = erzeugeVerleihkartenBestand(initialBestand);
         _vormerkkarten = erzeugeVormerkkartenBestand(medienbestand.getMedien());
         _kundenstamm = kundenstamm;
@@ -109,8 +101,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         HashMap<Medium, Vormerkkarte> result = new HashMap<Medium, Vormerkkarte>();
         for (Medium medium : medienbestand)
         {
-            result.put(medium, new Vormerkkarte(medium, _nullKunde, _nullKunde,
-                    _nullKunde));
+            result.put(medium, new Vormerkkarte(medium, null, null, null));
         }
         return result;
     }
@@ -134,8 +125,15 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         assert kundeImBestand(kunde) : "Vorbedingung verletzt: kundeImBestand(kunde)";
         assert medienImBestand(medien) : "Vorbedingung verletzt: medienImBestand(medien)";
 
-        return sindAlleNichtVerliehen(medien)
-                && (kundeIstErsterVormerkerAlle(medien, kunde) || keineVormerkungAlle(medien));
+        for (Medium medium : medien)
+        {
+            if (istVerliehen(medium)
+                    || (!kundeIstErsterVormerker(medium, kunde) && !keineVormerkung(medium)))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -331,17 +329,17 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         for (Medium medium : medien)
         {
             Vormerkkarte vormerkkarteAlt = _vormerkkarten.get(medium);
-            if (vormerkkarteAlt.getVormerker1() == _nullKunde)
+            if (vormerkkarteAlt.getVormerker1() == null)
             {
                 _vormerkkarten.put(medium, new Vormerkkarte(medium, kunde,
-                        _nullKunde, _nullKunde));
+                        null, null));
             }
             else
             {
-                if (vormerkkarteAlt.getVormerker2() == _nullKunde)
+                if (vormerkkarteAlt.getVormerker2() == null)
                 {
                     _vormerkkarten.put(medium, new Vormerkkarte(medium,
-                            vormerkkarteAlt.getVormerker1(), kunde, _nullKunde));
+                            vormerkkarteAlt.getVormerker1(), kunde, null));
                 }
                 else
                 {
@@ -390,7 +388,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         {
             _vormerkkarten.put(medium,
                     new Vormerkkarte(medium, vormerkkarteAlt.getVormerker1(),
-                            vormerkkarteAlt.getVormerker2(), _nullKunde));
+                            vormerkkarteAlt.getVormerker2(), null));
         }
         else
         {
@@ -400,7 +398,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
                         medium,
                         new Vormerkkarte(medium,
                                 vormerkkarteAlt.getVormerker1(),
-                                vormerkkarteAlt.getVormerker3(), _nullKunde));
+                                vormerkkarteAlt.getVormerker3(), null));
             }
             else
             {
@@ -408,7 +406,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
                         medium,
                         new Vormerkkarte(medium,
                                 vormerkkarteAlt.getVormerker2(),
-                                vormerkkarteAlt.getVormerker3(), _nullKunde));
+                                vormerkkarteAlt.getVormerker3(), null));
             }
 
         }
@@ -420,8 +418,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         assert medium != null : "Vorbedingung verletzt: kunde  != null";
 
         boolean result = _vormerkkarten.get(medium)
-            .getVormerker3()
-            .equals(_nullKunde);
+            .getVormerker3() == null;
         return result;
     }
 
@@ -449,13 +446,12 @@ public class VerleihServiceImpl extends AbstractObservableService implements
 
         boolean result = vormerkenMoeglich(medium)
                 && !istVerliehenAn(kunde, medium)
-                && !(_vormerkkarten.get(medium)
-                    .getVormerker1()
-                    .equals(kunde) || _vormerkkarten.get(medium)
-                    .getVormerker2()
-                    .equals(kunde) || _vormerkkarten.get(medium)
-                    .getVormerker3()
-                    .equals(kunde));
+                && !(kunde.equals(_vormerkkarten.get(medium)
+                    .getVormerker1())
+                        || kunde.equals(_vormerkkarten.get(medium)
+                            .getVormerker2()) || kunde.equals(_vormerkkarten.get(
+                        medium)
+                    .getVormerker3()));
         return result;
     }
 
@@ -482,26 +478,8 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         assert medium != null : "Vorbedingung verletzt: kunde  != null";
         assert kunde != null : "Vorbedingung verletzt: kunde  != null";
 
-        boolean result = _vormerkkarten.get(medium)
-            .getVormerker1()
-            .equals(kunde);
-        return result;
-    }
-
-    @Override
-    public boolean kundeIstErsterVormerkerAlle(List<Medium> medien, Kunde kunde)
-    {
-        assert medien != null : "Vorbedingung verletzt: kunde  != null";
-        assert kunde != null : "Vorbedingung verletzt: kunde  != null";
-
-        boolean result = true;
-        for (Medium medium : medien)
-        {
-            if (!kundeIstErsterVormerker(medium, kunde))
-            {
-                result = false;
-            }
-        }
+        boolean result = kunde.equals(_vormerkkarten.get(medium)
+            .getVormerker1());
         return result;
     }
 
@@ -511,30 +489,7 @@ public class VerleihServiceImpl extends AbstractObservableService implements
         assert medium != null : "Vorbedingung verletzt: kunde  != null";
 
         boolean result = _vormerkkarten.get(medium)
-            .getVormerker1()
-            .equals(_nullKunde);
+            .getVormerker1() == null;
         return result;
-    }
-
-    @Override
-    public boolean keineVormerkungAlle(List<Medium> medien)
-    {
-        assert medien != null : "Vorbedingung verletzt: kunde  != null";
-
-        boolean result = true;
-        for (Medium medium : medien)
-        {
-            if (!keineVormerkung(medium))
-            {
-                result = false;
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public Kunde getNullKunde()
-    {
-        return _nullKunde;
     }
 }

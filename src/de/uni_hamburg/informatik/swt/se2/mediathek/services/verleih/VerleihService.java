@@ -337,19 +337,6 @@ public interface VerleihService extends ObservableService
     boolean kundeIstErsterVormerker(Medium medium, Kunde kunde);
 
     /**
-     * Prüft, ob ein Kunde der erste Vormerker der Medien einer Liste von Medien ist.
-     * 
-     * @param medien Eine Liste von Medien, für die überprüft wird.
-     * @param kunde Der Kunde, für den überprüft wird.
-     * 
-     * @return True, wenn der Kunde erster Vormerker aller Medien der Liste ist, false sonst.
-     * 
-     * @require medien != null
-     * @require kunde != null
-     */
-    boolean kundeIstErsterVormerkerAlle(List<Medium> medien, Kunde kunde);
-
-    /**
      * Prüft, ob für ein Medium Vormerkungen existieren.
      * 
      * @param medium Ein Medium, für das überprüft wird.
@@ -359,24 +346,4 @@ public interface VerleihService extends ObservableService
      * @require medium != null
      */
     boolean keineVormerkung(Medium medium);
-
-    /**
-     * Prüft, ob für Medien einer Liste von Medien Vormerkungen existieren.
-     * 
-     * @param medien Eine Liste von Medien, für die überprüft wird.
-     * 
-     * @return True, wenn mind. eine Vormerkung für alle Medien der Liste besteht, false sonst.
-     * 
-     * @require medien != null
-     */
-    boolean keineVormerkungAlle(List<Medium> medien);
-
-    /**
-     * Liefert einen Kunden zurück, der verwendet wird, wenn ein Feld in der Vormerk-Tabelle leer bleiben soll.
-     * 
-     * @return Einen "NullKunden", der für "niemand", "N/A" o.ä steht. Er trägt die Kundennummer 999999.
-     * 
-     * @ensure result != null
-     */
-    Kunde getNullKunde();
 }

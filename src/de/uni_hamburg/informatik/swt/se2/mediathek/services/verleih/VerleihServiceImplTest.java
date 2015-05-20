@@ -31,7 +31,9 @@ public class VerleihServiceImplTest
     private Kunde _kunde;
     private VerleihService _service;
     private List<Medium> _medienListe;
-    private Kunde _vormerkkunde;
+    private Kunde _vormerker1;
+    private Kunde _vormerker2;
+    private Kunde _vormerker3;
 
     public VerleihServiceImplTest()
     {
@@ -40,10 +42,14 @@ public class VerleihServiceImplTest
                 new ArrayList<Kunde>());
         _kunde = new Kunde(new Kundennummer(123456), "ich", "du");
 
-        _vormerkkunde = new Kunde(new Kundennummer(666999), "paul", "panter");
+        _vormerker1 = new Kunde(new Kundennummer(666999), "paul", "panter");
+        _vormerker2 = new Kunde(new Kundennummer(667000), "paulchen", "panter");
+        _vormerker3 = new Kunde(new Kundennummer(667001), "heinz", "panter");
 
         kundenstamm.fuegeKundenEin(_kunde);
-        kundenstamm.fuegeKundenEin(_vormerkkunde);
+        kundenstamm.fuegeKundenEin(_vormerker1);
+        kundenstamm.fuegeKundenEin(_vormerker2);
+        kundenstamm.fuegeKundenEin(_vormerker3);
         MedienbestandService medienbestand = new MedienbestandServiceImpl(
                 new ArrayList<Medium>());
         Medium medium = new CD("CD1", "baz", "foo", 123);
@@ -62,7 +68,8 @@ public class VerleihServiceImplTest
     @Test
     public void testeNachInitialisierungIstNichtsVerliehen() throws Exception
     {
-        assertTrue(_service.getVerleihkarten().isEmpty());
+        assertTrue(_service.getVerleihkarten()
+            .isEmpty());
         assertFalse(_service.istVerliehen(_medienListe.get(0)));
         assertFalse(_service.sindAlleVerliehen(_medienListe));
         assertTrue(_service.sindAlleNichtVerliehen(_medienListe));
@@ -99,7 +106,8 @@ public class VerleihServiceImplTest
         assertFalse(_service.sindAlleVerliehenAn(_kunde, nichtVerlieheneMedien));
 
         // Prüfe alle sonstigen sondierenden Methoden
-        assertEquals(2, _service.getVerleihkarten().size());
+        assertEquals(2, _service.getVerleihkarten()
+            .size());
 
         _service.nimmZurueck(verlieheneMedien, _datum);
         // Prüfe, ob alle sondierenden Operationen für das Vertragsmodell
@@ -114,7 +122,8 @@ public class VerleihServiceImplTest
         assertFalse(_service.sindAlleVerliehen(nichtVerlieheneMedien));
         assertFalse(_service.sindAlleVerliehen(_medienListe));
         assertTrue(_service.sindAlleNichtVerliehen(_medienListe));
-        assertTrue(_service.getVerleihkarten().isEmpty());
+        assertTrue(_service.getVerleihkarten()
+            .isEmpty());
     }
 
     @Test
@@ -146,4 +155,41 @@ public class VerleihServiceImplTest
         assertFalse(ereignisse[0]);
     }
 
+    @Test
+    public void testMerkeMedienVor()
+    {
+        _service.merkeMedienVor(_medienListe, _vormerker1);
+        _service.merkeMedienVor(_medienListe, _vormerker2);
+        _service.merkeMedienVor(_medienListe, _vormerker3);
+
+        assertFalse(_service.istVerleihenMoeglich(_kunde, _medienListe));
+        for (Medium medium : _medienListe)
+        {
+            assertEquals(_service.getVormerkkarteFuer(medium)
+                .getVormerker1(), _vormerker1);
+            assertEquals(_service.getVormerkkarteFuer(medium)
+                .getVormerker2(), _vormerker2);
+            assertEquals(_service.getVormerkkarteFuer(medium)
+                .getVormerker3(), _vormerker3);
+        }
+
+        try
+        {
+            _service.verleiheAn(_vormerker1, _medienListe, _datum);
+        }
+        catch (ProtokollierException e)
+        {
+            System.out.println(e.toString());
+        }
+
+        for (Medium medium : _medienListe)
+        {
+            assertEquals(_service.getVormerkkarteFuer(medium)
+                .getVormerker1(), _vormerker2);
+            assertEquals(_service.getVormerkkarteFuer(medium)
+                .getVormerker2(), _vormerker3);
+            assertEquals(_service.getVormerkkarteFuer(medium)
+                .getVormerker3(), null);
+        }
+    }
 }

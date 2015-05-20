@@ -32,9 +32,6 @@ public class Vormerkkarte
      * @param vormerker3 Der dritte Vormerker des Mediums.
      * 
      * @require medium != null
-     * @require vormerker1 != null
-     * @require vormerker2 != null
-     * @require vormerker3 != null
      * 
      * @ensure #getMedium() == medium
      * @ensure #getVormerker1() == vormerker1
@@ -45,9 +42,6 @@ public class Vormerkkarte
             Kunde vormerker3)
     {
         assert medium != null : "Vorbedingung verletzt: medium != null";
-        assert vormerker1 != null : "Vorbedingung verletzt: vormerker1 != null";
-        assert vormerker2 != null : "Vorbedingung verletzt: vormerker2 != null";
-        assert vormerker3 != null : "Vorbedingung verletzt: vormerker3 != null";
 
         _medium = medium;
         _vormerker1 = vormerker1;
